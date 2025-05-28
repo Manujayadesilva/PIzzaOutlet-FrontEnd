@@ -1,9 +1,7 @@
 'use client';
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import './globals.css'; 
-
+import './globals.css';
 
 export default function HomePage() {
   const router = useRouter();
@@ -25,50 +23,52 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-100 to-yellow-100 px-4 py-12">
-      <h1 className="text-4xl md:text-5xl font-bold text-red-700 mb-6 text-center">
-        🍕 Welcome to FireCrust Pizza
-      </h1>
-      <p className="text-lg text-gray-700 mb-10 text-center max-w-xl">
-        
-      </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#fff5f5] via-[#ffeabf] to-[#ffd6cc] flex items-center justify-center px-4">
+      <div className="text-center">
+        <h1 className="text-5xl font-extrabold text-red-600 drop-shadow-md mb-3">
+          🍕 FireCrust Pizza
+        </h1>
+        <p className="text-gray-700 text-lg mb-8">
+          Order your favorite pizza or manage the outlet.
+        </p>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* User Login Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 w-80">
-          <h2 className="text-xl font-semibold mb-4 text-center text-green-700">User Login</h2>
-          <button
-            onClick={handleUserLogin}
-            className="bg-green-600 hover:bg-green-700 text-white py-2 w-full rounded-full"
-          >
-            Continue as Guest
-          </button>
-        </div>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+          {/* User Login */}
+          <div className="w-80 p-6 bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl transition hover:scale-105 duration-300">
+            <h2 className="text-xl font-semibold text-green-700 mb-4">User Login</h2>
+            <button
+              onClick={handleUserLogin}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full transition"
+            >
+              Continue as Guest
+            </button>
+          </div>
 
-        {/* Admin Login Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 w-80">
-          <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">Admin Login</h2>
-          <input
-            type="text"
-            placeholder="Username"
-            value={adminUsername}
-            onChange={(e) => setAdminUsername(e.target.value)}
-            className="w-full mb-3 px-4 py-2 border rounded"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={adminPassword}
-            onChange={(e) => setAdminPassword(e.target.value)}
-            className="w-full mb-4 px-4 py-2 border rounded"
-          />
-          <button
-            onClick={handleAdminLogin}
-            className="bg-gray-800 hover:bg-gray-900 text-white py-2 w-full rounded-full"
-          >
-            Admin Login
-          </button>
-          {error && <p className="text-red-600 mt-2 text-sm text-center">{error}</p>}
+          {/* Admin Login */}
+          <div className="w-80 p-6 bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl transition hover:scale-105 duration-300">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Admin Login</h2>
+            <input
+              type="text"
+              placeholder="Username"
+              value={adminUsername}
+              onChange={(e) => setAdminUsername(e.target.value)}
+              className="w-full mb-3 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-300 outline-none transition"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-300 outline-none transition"
+            />
+            <button
+              onClick={handleAdminLogin}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition"
+            >
+              Admin Login
+            </button>
+            {error && <p className="text-red-600 mt-3 text-sm">{error}</p>}
+          </div>
         </div>
       </div>
     </div>

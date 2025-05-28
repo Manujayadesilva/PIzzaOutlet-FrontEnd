@@ -1,34 +1,34 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SelectedPizza } from '@/types';
 
-// Dummy data (replace with real API calls)
+
 const pizzas = [
   { id: '1', name: 'Margherita', basePrice: 5, ingredientIds: ['1', '2'] },
-  { id: '2', name: 'Pepperoni', basePrice: 7, ingredientIds: ['1', '3'] },
+  { id: '2', name: 'Pepperoni',  basePrice: 7, ingredientIds: ['1', '3'] },
 ];
 
 const ingredients = [
-  { id: '1', name: 'Cheese', stock: 10 },
-  { id: '2', name: 'Tomato Sauce', stock: 5 },
-  { id: '3', name: 'Pepperoni', stock: 2 },
+  { id: '1', name: 'Cheese',       stock: 10 },
+  { id: '2', name: 'Tomato Sauce', stock: 5  },
+  { id: '3', name: 'Pepperoni',    stock: 2  },
 ];
 
+
 export default function CustomerMenu() {
+  const router = useRouter();
   const [cart, setCart] = useState<SelectedPizza[]>([]);
   const [selectedIngredients, setSelectedIngredients] = useState<Record<string, Set<string>>>({});
-  const router = useRouter();
 
+  
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    if (savedCart) setCart(JSON.parse(savedCart));
   }, []);
 
   const toggleIngredient = (pizzaId: string, ingredientId: string) => {
-    setSelectedIngredients((prev) => {
+    setSelectedIngredients(prev => {
       const current = new Set(prev[pizzaId] || []);
       current.has(ingredientId) ? current.delete(ingredientId) : current.add(ingredientId);
       return { ...prev, [pizzaId]: current };
@@ -39,95 +39,147 @@ export default function CustomerMenu() {
     const selected = selectedIngredients[pizzaId] ? Array.from(selectedIngredients[pizzaId]) : [];
 
     // Stock validation
-    const hasStock = selected.every((id) => {
-      const ing = ingredients.find((i) => i.id === id);
-      return ing && ing.stock > 0;
-    });
+    const hasStock = selected.every(id => ingredients.find(i => i.id === id)?.stock! > 0);
+    if (!hasStock) return alert('Some ingredients are out of stock!');
 
-    if (!hasStock) {
-      alert('Some ingredients are out of stock!');
-      return;
-    }
-
-    const newCartItem = { pizzaId, selectedIngredientIds: selected };
-    const updatedCart = [...cart, newCartItem];
+    const updatedCart = [...cart, { pizzaId, selectedIngredientIds: selected }];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
 
-    setSelectedIngredients((prev) => ({ ...prev, [pizzaId]: new Set() }));
+    setSelectedIngredients(prev => ({ ...prev, [pizzaId]: new Set() }));
+  };
+
+  const removeFromCart = (index: number) => {
+    const updatedCart = cart.filter((_, i) => i !== index);
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   const handlePlaceOrder = () => {
-    if (cart.length === 0) return;
-    router.push('/customer/checkout');
+    if (cart.length) router.push('/customer/checkout');
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Order Pizza</h1>
+    <main className="min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-rose-100/70 py-10">
+      <section className="max-w-5xl mx-auto px-4">
+        <header className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-rose-600 drop-shadow-sm">
+            🍕 Build Your Pizza
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Select ingredients &amp; add multiple pizzas to your cart.
+          </p>
+        </header>
 
-      {pizzas.map((pizza) => (
-        <div key={pizza.id} className="mb-8 border p-4 rounded shadow">
-          <h2 className="text-2xl font-semibold">{pizza.name}</h2>
-          <p>Base Price: Rs.{pizza.basePrice}</p>
+        {/* Pizza Grid */}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {pizzas.map(pizza => (
+            <article
+              key={pizza.id}
+              className="relative rounded-3xl bg-white/70 backdrop-blur-lg shadow-lg p-6 ring-1 ring-white/20 hover:scale-105 transition-transform"
+            >
+              <span className="absolute -top-3 -right-3 bg-rose-600 text-white text-sm font-semibold px-3 py-1 rounded-full shadow">
+                Rs.{pizza.basePrice}
+              </span>
 
-          <div className="mt-2">
-            <p className="font-semibold">Select Ingredients (stock shown):</p>
-            {pizza.ingredientIds.map((id) => {
-              const ingredient = ingredients.find((ing) => ing.id === id);
-              const selectedSet = selectedIngredients[pizza.id] || new Set();
-              return (
-                <label key={id} className="block">
-                  <input
-                    type="checkbox"
-                    checked={selectedSet.has(id)}
-                    disabled={ingredient?.stock === 0}
-                    onChange={() => toggleIngredient(pizza.id, id)}
-                    className="mr-2"
-                  />
-                  {ingredient?.name} (Stock: {ingredient?.stock})
-                </label>
-              );
-            })}
-          </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">{pizza.name}</h2>
 
-          <button
-            onClick={() => addToCart(pizza.id)}
-            className="mt-3 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Add to Cart
-          </button>
+              <div className="space-y-2">
+                <p className="font-semibold text-gray-700">Choose ingredients:</p>
+
+                {pizza.ingredientIds.map(id => {
+                  const ing = ingredients.find(i => i.id === id);
+                  const selected = selectedIngredients[pizza.id]?.has(id);
+                  const outOfStock = ing!.stock === 0;
+
+                  return (
+                    <label
+                      key={id}
+                      className={`flex items-center gap-2 text-sm font-medium 
+                        ${outOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        disabled={outOfStock}
+                        onChange={() => toggleIngredient(pizza.id, id)}
+                        className="h-4 w-4 accent-rose-600 disabled:opacity-30"
+                      />
+                      {ing!.name}
+                      <span
+                        className={`ml-auto inline-block px-2 py-0.5 rounded-full text-[10px] tracking-wide
+                          ${outOfStock ? 'bg-gray-400 text-white' : 'bg-emerald-600/10 text-emerald-700'}`}
+                      >
+                        Stock {ing!.stock}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => addToCart(pizza.id)}
+                className="mt-5 w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold py-2 rounded-full transition"
+              >
+                Add to Cart
+              </button>
+            </article>
+          ))}
         </div>
-      ))}
 
-      <div className="mt-10">
-        <h2 className="text-2xl font-bold mb-4">Cart</h2>
-        {cart.length === 0 && <p>Your cart is empty.</p>}
+        {/* Cart Section */}
+        <section className="mt-16">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <span>🛒 Your Cart</span>
+            <span className="text-base bg-rose-600 text-white rounded-full px-2">
+              {cart.length}
+            </span>
+          </h2>
 
-        <ul>
-          {cart.map((item, index) => {
-            const pizza = pizzas.find((p) => p.id === item.pizzaId);
-            const ingredientNames = item.selectedIngredientIds
-              .map((id) => ingredients.find((ing) => ing.id === id)?.name)
-              .filter(Boolean)
-              .join(', ');
-            return (
-              <li key={index} className="mb-2 border p-2 rounded">
-                <strong>{pizza?.name}</strong> with: {ingredientNames || 'No extra ingredients'}
-              </li>
-            );
-          })}
-        </ul>
+          {cart.length === 0 ? (
+            <p className="text-gray-600">Your cart is empty.</p>
+          ) : (
+            <>
+              <ul className="space-y-3">
+                {cart.map((item, idx) => {
+                  const pizza = pizzas.find(p => p.id === item.pizzaId)!;
+                  const ingredientNames = item.selectedIngredientIds
+                    .map(id => ingredients.find(i => i.id === id)?.name)
+                    .filter(Boolean)
+                    .join(', ');
 
-        {cart.length > 0 && (
-          <button
-            onClick={handlePlaceOrder}
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
-          >
-            Go to Checkout
-          </button>
-        )}
-      </div>
-    </div>
+                  return (
+                    <li
+                      key={idx}
+                      className="bg-white/60 backdrop-blur-lg rounded-xl p-4 shadow ring-1 ring-white/20 flex justify-between items-start"
+                    >
+                      <div>
+                        <strong>{pizza.name}</strong>{' '}
+                        <span className="text-xs text-gray-500 block">
+                          {ingredientNames || 'No extra ingredients'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(idx)}
+                        className="text-sm text-red-600 hover:underline ml-4"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <button
+                onClick={handlePlaceOrder}
+                className="mt-8 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-semibold px-8 py-3 rounded-full transition"
+              >
+                Go to Checkout →
+              </button>
+            </>
+          )}
+        </section>
+      </section>
+    </main>
   );
 }

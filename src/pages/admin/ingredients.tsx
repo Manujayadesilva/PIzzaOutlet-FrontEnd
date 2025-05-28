@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface Ingredient {
   id: string;
   name: string;
-  stock: number; // inventory quantity
+  stock: number; 
 }
 
 
@@ -18,7 +18,7 @@ export default function AdminIngredients() {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', stock: '' });
 
-  // Update form when editing changes
+  
   React.useEffect(() => {
     if (editing) {
       const ing = ingredients.find(i => i.id === editing);

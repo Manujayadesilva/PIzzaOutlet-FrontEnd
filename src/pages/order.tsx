@@ -33,7 +33,7 @@ export default function OrderPage() {
           },
         }
       )
-      .then((res) => setReceipt(res.data)) // backend should return a receipt
+      .then((res) => setReceipt(res.data)) 
       .catch(() => alert('Failed to place order.'));
   };
 

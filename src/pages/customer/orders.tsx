@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export default function OrderHistoryPage() {
   const [orders, setOrders] = useState<any[]>([]);
-  const userId = 'demo-user-id'; // Replace with actual auth user ID
+  const userId = '123'; 
 
   useEffect(() => {
     axios.get(`/api/orders?userId=${userId}`).then(res => setOrders(res.data));

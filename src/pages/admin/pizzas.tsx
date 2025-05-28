@@ -5,10 +5,10 @@ interface Pizza {
   name: string;
   description: string;
   price: number;
-  ingredientIds: string[]; // references to ingredients
+  ingredientIds: string[]; 
 }
 
-// Dummy data - replace with API calls
+
 const initialPizzas = [
   { id: '1', name: 'Margherita', description: 'Classic with cheese and tomato', price: 9.99, ingredientIds: ['1', '2'] },
   { id: '2', name: 'Pepperoni', description: 'Spicy pepperoni with cheese', price: 12.99, ingredientIds: ['1', '3'] },
@@ -32,7 +32,7 @@ export default function AdminPizzas() {
     ingredientIds: [] as string[],
   });
 
-  // Update form when editingPizza changes
+  
   useEffect(() => {
     if (editingPizza) {
       setForm({
@@ -46,7 +46,7 @@ export default function AdminPizzas() {
     }
   }, [editingPizza]);
 
-  // Handle input changes
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
